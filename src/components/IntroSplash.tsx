@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const INTRO_IMAGE = `${import.meta.env.BASE_URL}nasq-inside-comparison.jpeg`
+const INTRO_IMAGE = `${import.meta.env.BASE_URL}nasq-inside-comparison.webp`
 
 type IntroSplashProps = {
   onComplete: () => void
