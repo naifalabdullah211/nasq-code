@@ -1,0 +1,28 @@
+name: Deploy Nasq Code to Firebase
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Firebase bundle
+        run: |
+          mkdir firebase-deploy
+          unzip -q nasq-code-firebase-ready.zip -d firebase-deploy
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NASQ_CODE }}
+
+      - name: Deploy Firebase Hosting
+        working-directory: firebase-deploy
+        run: npx --yes firebase-tools@15.30.0 deploy --only hosting --project nasq-code --non-interactive
