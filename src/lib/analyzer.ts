@@ -114,8 +114,9 @@ export async function analyzeZip(file: File): Promise<ScanReport> {
     const normalized = path.replace(/\\/g, '/')
     const basename = normalized.split('/').pop()?.toLowerCase() ?? ''
     const extension = basename.includes('.') ? basename.split('.').pop() ?? '' : ''
+    const isLockfile = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb'].includes(basename)
     if (nestedArchiveExtensions.has(extension)) nestedArchives.push(normalized)
-    if (['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb'].includes(basename)) hasLockfile = true
+    if (isLockfile) hasLockfile = true
     if (basename === '.env') hasEnv = true
     if (basename === '.env.example') hasEnvExample = true
     if (!isTextFile(normalized)) continue
@@ -128,7 +129,7 @@ export async function analyzeZip(file: File): Promise<ScanReport> {
 
     const text = decoder.decode(bytes)
     const lines = text.split('\n').length
-    if (lines > 500) findings.push({ title: 'ملف كبير متعدد المسؤوليات', detail: `${normalized} يحتوي على ${lines.toLocaleString('ar-SA')} سطرًا ويحتاج إلى تقسيم`, severity: 'متوسطة', category: 'البنية', file: normalized })
+    if (!isLockfile && lines > 500) findings.push({ title: 'ملف كبير متعدد المسؤوليات', detail: `${normalized} يحتوي على ${lines.toLocaleString('ar-SA')} سطرًا ويحتاج إلى تقسيم`, severity: 'متوسطة', category: 'البنية', file: normalized })
 
     const imports = (text.match(/(?:import\s.+?from\s+|require\s*\()/g) ?? []).length
     if (imports > 25) findings.push({ title: 'ترابط مرتفع داخل ملف واحد', detail: `${normalized} يعتمد على ${imports.toLocaleString('ar-SA')} استيرادًا`, severity: 'متوسطة', category: 'البنية', file: normalized })
@@ -149,7 +150,7 @@ export async function analyzeZip(file: File): Promise<ScanReport> {
     if (/dangerouslySetInnerHTML\s*=/.test(text)) findings.push({ title: 'إدراج HTML مباشر', detail: `${normalized} يستخدم dangerouslySetInnerHTML ويحتاج إلى التحقق من تعقيم المدخلات`, severity: 'متوسطة', category: 'الأمان', file: normalized })
     if (/\beval\s*\(/.test(text)) findings.push({ title: 'استخدام eval', detail: `${normalized} ينفذ نصًا برمجيًا ديناميكيًا`, severity: 'عالية', category: 'الأمان', file: normalized })
 
-    const todoCount = (text.match(/\b(?:TODO|FIXME|HACK)\b/g) ?? []).length
+    const todoCount = (text.match(/(?:\/\/|\/\*|#|<!--)[^\n]*(?:TODO|FIXME|HACK)/gi) ?? []).length
     if (todoCount >= 5) findings.push({ title: 'ديون تقنية متراكمة', detail: `${normalized} يحتوي على ${todoCount.toLocaleString('ar-SA')} علامة TODO أو FIXME أو HACK`, severity: 'منخفضة', category: 'قابلية الصيانة', file: normalized })
 
     if (basename === 'package.json') {
