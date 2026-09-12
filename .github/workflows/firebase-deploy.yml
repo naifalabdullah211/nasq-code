@@ -19,6 +19,12 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Download intro artwork
+        run: |
+          curl --location --fail --retry 3 \
+            "https://github.com/user-attachments/assets/aecb848e-e6f3-4c4e-b2bc-9f2856ef6ec8" \
+            --output public/nasq-inside-comparison.jpeg
+
       - name: Build current source
         run: |
           npm ci
