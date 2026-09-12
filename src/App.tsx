@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { IntroSplash } from './components/IntroSplash'
 import { DashboardPage } from './pages/DashboardPage'
 import { LandingPage } from './pages/LandingPage'
 import type { ScanReport } from './lib/analyzer'
@@ -19,6 +20,7 @@ function restoreReport(): ScanReport | null {
 }
 
 export default function App() {
+  const [showIntro, setShowIntro] = useState(true)
   const [report, setReport] = useState<ScanReport | null>(() => restoreReport())
   const [isDemo, setIsDemo] = useState(() => sessionStorage.getItem(DEMO_KEY) === 'true')
   const [view, setView] = useState<View>(() => window.location.hash === '#report' && (restoreReport() || sessionStorage.getItem(DEMO_KEY) === 'true') ? 'dashboard' : 'landing')
@@ -28,6 +30,9 @@ export default function App() {
     return () => window.removeEventListener('hashchange', listener)
   }, [])
   const go = (next: View) => { window.location.hash = next === 'dashboard' ? 'report' : ''; setView(next); window.scrollTo({ top: 0 }) }
+
+  if (showIntro) return <IntroSplash onComplete={() => setShowIntro(false)} />
+
   return view === 'dashboard'
     ? <DashboardPage onBack={() => go('landing')} report={report} isDemo={isDemo} />
     : <LandingPage
