@@ -27,6 +27,9 @@ jobs:
         working-directory: firebase-deploy
         run: npx --yes firebase-tools@15.30.0 deploy --only hosting --project nasq-code --non-interactive
 
+      - name: Enable IAM API for secure key cleanup
+        run: gcloud services enable iam.googleapis.com --project=nasq-code
+
       - name: Revoke temporary Firebase key
         shell: bash
         run: |
