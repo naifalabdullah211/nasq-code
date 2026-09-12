@@ -1,6 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
 import {
   Boxes,
+  BrainCircuit,
   Braces,
   CircleAlert,
   FileCode2,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 import { ActionButton } from "../components/ActionButton";
 import { BrandMark } from "../components/BrandMark";
+import { DeepAnalysisPanel } from "../components/DeepAnalysisPanel";
 import { EmptyState } from "../components/EmptyState";
 import { KPICard } from "../components/KPICard";
 import type { ScanReport } from "../lib/analyzer";
@@ -76,6 +78,7 @@ export function DashboardPage({
   const [severity, setSeverity] = useState("الكل");
   const [category, setCategory] = useState("الكل");
   const [planReady, setPlanReady] = useState(false);
+  const [deepOpen, setDeepOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const reportFindings = report?.findings ?? findings;
   const visible = useMemo(
@@ -106,6 +109,11 @@ export function DashboardPage({
   const showPlan = () => {
     setPlanReady(true);
     requestAnimationFrame(() => document.getElementById("repair-plan")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+  const showDeepAnalysis = () => {
+    if (!report?.deepAnalysis) return;
+    setDeepOpen(true);
+    requestAnimationFrame(() => document.getElementById("deep-analysis")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
   return (
@@ -187,6 +195,14 @@ export function DashboardPage({
               >
                 عرض خطة الإصلاح
               </ActionButton>
+              <ActionButton
+                variant="secondary"
+                icon={<BrainCircuit />}
+                onClick={showDeepAnalysis}
+                disabled={isDemo || !report?.deepAnalysis}
+              >
+                التحليل العميق
+              </ActionButton>
             </div>
           </div>
           {isDemo && <div className="demo-banner" role="status">هذا نموذج توضيحي ولا يمثل فحصًا حقيقيًا لمشروعك</div>}
@@ -198,6 +214,7 @@ export function DashboardPage({
               <p>{report.limitations[0]}</p>
             </section>
           )}
+          {deepOpen && report?.deepAnalysis && <DeepAnalysisPanel analysis={report.deepAnalysis} onClose={() => setDeepOpen(false)} />}
           {planReady && (
             <section className="repair-plan" id="repair-plan" aria-labelledby="repair-plan-title">
               <div className="repair-plan-head">
