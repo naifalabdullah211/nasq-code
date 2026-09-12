@@ -128,12 +128,17 @@ a {
   margin: 0;
   display: grid;
   transform: translate(-50%, -50%);
+  min-width: max-content;
+  padding: 16px 24px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 12px;
   color: #fff;
+  background: rgba(7, 24, 47, 0.76);
   font-size: clamp(29px, 4.6vw, 72px);
   line-height: 0.95;
   text-align: center;
   text-shadow: 0 4px 22px rgba(0, 0, 0, 0.92);
-  animation: intro-title-in 0.8s 0.35s both ease-out;
+  backdrop-filter: blur(8px);
 }
 .intro-splash__visual h1 em {
   margin-top: 10px;
@@ -197,10 +202,6 @@ a {
   transform-origin: right;
   animation: intro-progress 4s linear both;
 }
-@keyframes intro-title-in {
-  from { opacity: 0; transform: translate(-50%, -42%) scale(0.96); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
 @keyframes intro-progress {
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
@@ -215,6 +216,7 @@ a {
   }
   .intro-splash__visual h1 {
     top: 49%;
+    padding: 12px 18px 14px;
     font-size: 30px;
   }
   .intro-splash__lead {
@@ -231,7 +233,6 @@ a {
 }
 @media (prefers-reduced-motion: reduce) {
   .intro-splash,
-  .intro-splash__visual h1,
   .intro-splash__progress i {
     animation: none;
     transition: none;
