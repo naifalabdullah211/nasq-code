@@ -4,7 +4,7 @@ import { LandingPage } from './pages/LandingPage'
 import type { ScanReport } from './lib/analyzer'
 
 type View = 'landing' | 'dashboard'
-const REPORT_KEY = 'nasq-code-report-v2'
+const REPORT_KEY = 'nasq-code-report-v3'
 const DEMO_KEY = 'nasq-code-demo'
 
 function restoreReport(): ScanReport | null {
