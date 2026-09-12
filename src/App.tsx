@@ -3,6 +3,7 @@ import { IntroSplash } from './components/IntroSplash'
 import { DashboardPage } from './pages/DashboardPage'
 import { LandingPage } from './pages/LandingPage'
 import type { ScanReport } from './lib/analyzer'
+import { getAnalyticsConsent, saveAnalyticsConsent, startAnalytics, trackPageView, type AnalyticsConsent } from './lib/analytics'
 
 type View = 'landing' | 'dashboard'
 const REPORT_KEY = 'nasq-code-report-v3'
@@ -20,6 +21,7 @@ function restoreReport(): ScanReport | null {
 }
 
 export default function App() {
+  const [analyticsConsent, setAnalyticsConsent] = useState<AnalyticsConsent | null>(() => getAnalyticsConsent())
   const [showIntro, setShowIntro] = useState(true)
   const [report, setReport] = useState<ScanReport | null>(() => restoreReport())
   const [isDemo, setIsDemo] = useState(() => sessionStorage.getItem(DEMO_KEY) === 'true')
@@ -29,11 +31,20 @@ export default function App() {
     window.addEventListener('hashchange', listener)
     return () => window.removeEventListener('hashchange', listener)
   }, [])
+  useEffect(() => {
+    if (analyticsConsent !== 'accepted') return
+    startAnalytics()
+    const listener = () => trackPageView()
+    window.addEventListener('hashchange', listener)
+    return () => window.removeEventListener('hashchange', listener)
+  }, [analyticsConsent])
+  const chooseAnalytics = (consent: AnalyticsConsent) => {
+    saveAnalyticsConsent(consent)
+    setAnalyticsConsent(consent)
+  }
   const go = (next: View) => { window.location.hash = next === 'dashboard' ? 'report' : ''; setView(next); window.scrollTo({ top: 0 }) }
 
-  if (showIntro) return <IntroSplash onComplete={() => setShowIntro(false)} />
-
-  return view === 'dashboard'
+  const page = view === 'dashboard'
     ? <DashboardPage onBack={() => go('landing')} report={report} isDemo={isDemo} />
     : <LandingPage
         onOpenDemo={() => {
@@ -51,4 +62,20 @@ export default function App() {
           go('dashboard')
         }}
       />
+
+  return (
+    <>
+      {showIntro && <IntroSplash onComplete={() => setShowIntro(false)} />}
+      {page}
+      {analyticsConsent === null && (
+        <aside className="analytics-consent" aria-label="خيارات قياس الزيارات">
+          <p>نستخدم قياسًا محدودًا لمعرفة عدد الزيارات وتحسين نَسَق ولا نرسل ملفات مشروعك أو نتائج الفحص</p>
+          <div>
+            <button className="consent-accept" onClick={() => chooseAnalytics('accepted')}>موافق</button>
+            <button onClick={() => chooseAnalytics('rejected')}>رفض</button>
+          </div>
+        </aside>
+      )}
+    </>
+  )
 }
