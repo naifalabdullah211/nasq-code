@@ -7,20 +7,20 @@ type IntroSplashProps = {
 }
 
 export function IntroSplash({ onComplete }: IntroSplashProps) {
-  const [isReady, setIsReady] = useState(false)
+  const [showImage, setShowImage] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
 
   useEffect(() => {
-    if (!isReady) return
-
-    const leaveTimer = window.setTimeout(() => setIsLeaving(true), 4000)
-    const closeTimer = window.setTimeout(onComplete, 4550)
+    const imageTimer = window.setTimeout(() => setShowImage(true), 3000)
+    const leaveTimer = window.setTimeout(() => setIsLeaving(true), 7000)
+    const closeTimer = window.setTimeout(onComplete, 7550)
 
     return () => {
+      window.clearTimeout(imageTimer)
       window.clearTimeout(leaveTimer)
       window.clearTimeout(closeTimer)
     }
-  }, [isReady, onComplete])
+  }, [onComplete])
 
   const close = () => {
     setIsLeaving(true)
@@ -29,9 +29,8 @@ export function IntroSplash({ onComplete }: IntroSplashProps) {
 
   return (
     <section
-      className={`intro-splash${isReady ? ' is-ready' : ''}${isLeaving ? ' is-leaving' : ''}`}
+      className={`intro-splash${showImage ? ' show-image' : ''}${isLeaving ? ' is-leaving' : ''}`}
       aria-label="مقدمة نَسَق كود"
-      aria-busy={!isReady}
     >
       <div className="intro-splash__lead">
         <span>من الخارج</span>
@@ -42,7 +41,6 @@ export function IntroSplash({ onComplete }: IntroSplashProps) {
         <img
           src={INTRO_IMAGE}
           alt="مبنيان متشابهان من الخارج وبنية فوضوية وأخرى منظمة في الداخل"
-          onLoad={() => setIsReady(true)}
         />
         <h1>
           الفرق
