@@ -7,9 +7,12 @@ type IntroSplashProps = {
 }
 
 export function IntroSplash({ onComplete }: IntroSplashProps) {
+  const [isReady, setIsReady] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
 
   useEffect(() => {
+    if (!isReady) return
+
     const leaveTimer = window.setTimeout(() => setIsLeaving(true), 4000)
     const closeTimer = window.setTimeout(onComplete, 4550)
 
@@ -17,7 +20,7 @@ export function IntroSplash({ onComplete }: IntroSplashProps) {
       window.clearTimeout(leaveTimer)
       window.clearTimeout(closeTimer)
     }
-  }, [onComplete])
+  }, [isReady, onComplete])
 
   const close = () => {
     setIsLeaving(true)
@@ -26,8 +29,9 @@ export function IntroSplash({ onComplete }: IntroSplashProps) {
 
   return (
     <section
-      className={`intro-splash${isLeaving ? ' is-leaving' : ''}`}
+      className={`intro-splash${isReady ? ' is-ready' : ''}${isLeaving ? ' is-leaving' : ''}`}
       aria-label="مقدمة نَسَق كود"
+      aria-busy={!isReady}
     >
       <div className="intro-splash__lead">
         <span>من الخارج</span>
@@ -38,6 +42,7 @@ export function IntroSplash({ onComplete }: IntroSplashProps) {
         <img
           src={INTRO_IMAGE}
           alt="مبنيان متشابهان من الخارج وبنية فوضوية وأخرى منظمة في الداخل"
+          onLoad={() => setIsReady(true)}
         />
         <h1>
           الفرق
