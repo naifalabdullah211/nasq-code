@@ -26,3 +26,12 @@ jobs:
       - name: Deploy Firebase Hosting
         working-directory: firebase-deploy
         run: npx --yes firebase-tools@15.30.0 deploy --only hosting --project nasq-code --non-interactive
+
+      - name: Revoke temporary Firebase key
+        shell: bash
+        run: |
+          key_id="$(jq -r .private_key_id "$GOOGLE_GHA_CREDS_PATH")"
+          gcloud iam service-accounts keys delete "$key_id" \
+            --iam-account=firebase-adminsdk-fbsvc@nasq-code.iam.gserviceaccount.com \
+            --project=nasq-code \
+            --quiet
