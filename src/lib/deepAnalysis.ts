@@ -188,6 +188,7 @@ export function buildDeepAnalysis(allFiles: DeepSourceFile[], baselineFindings: 
   ]
   for (const file of allFiles) {
     for (const rule of securityRules) {
+      if (rule.title === 'اتصال غير مشفر داخل المشروع' && ['xml', 'md', 'css', 'scss'].includes(extension(file.path))) continue
       const match = file.text.match(rule.pattern)
       if (!match) continue
       const matchLine = lineOf(file.text, match)
