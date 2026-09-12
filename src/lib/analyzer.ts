@@ -1,4 +1,5 @@
 import { unzip } from 'fflate'
+import { buildDeepAnalysis, type DeepAnalysis, type DeepSourceFile } from './deepAnalysis'
 
 export type Severity = 'عالية' | 'متوسطة' | 'منخفضة'
 export type FindingCategory = 'الأمان' | 'البنية' | 'التبعيات' | 'قابلية الصيانة'
@@ -24,6 +25,7 @@ export type ScanReport = {
   confidence: 'عالية' | 'متوسطة' | 'منخفضة'
   limitations: string[]
   scoreAvailable: boolean
+  deepAnalysis: DeepAnalysis
 }
 
 const MAX_ZIP_SIZE = 20 * 1024 * 1024
@@ -109,6 +111,7 @@ export async function analyzeZip(file: File): Promise<ScanReport> {
   let oversizedTextFiles = 0
   const nestedArchives: string[] = []
   let packageJson: { dependencies?: Record<string, string>; devDependencies?: Record<string, string> } | null = null
+  const deepSourceFiles: DeepSourceFile[] = []
 
   for (const [path, bytes] of entries) {
     const normalized = path.replace(/\\/g, '/')
@@ -129,6 +132,7 @@ export async function analyzeZip(file: File): Promise<ScanReport> {
 
     const text = decoder.decode(bytes)
     const lines = text.split('\n').length
+    deepSourceFiles.push({ path: normalized, text, lines })
     if (!isLockfile && lines > 500) findings.push({ title: 'ملف كبير متعدد المسؤوليات', detail: `${normalized} يحتوي على ${lines.toLocaleString('ar-SA')} سطرًا ويحتاج إلى تقسيم`, severity: 'متوسطة', category: 'البنية', file: normalized })
 
     const imports = (text.match(/(?:import\s.+?from\s+|require\s*\()/g) ?? []).length
@@ -204,6 +208,7 @@ export async function analyzeZip(file: File): Promise<ScanReport> {
     ...(oversizedTextFiles ? [`تُرك ${oversizedTextFiles.toLocaleString('ar-SA')} ملف نصي يتجاوز ١ ميجابايت`] : []),
     ...(sourceFilesCount === 0 ? ['لم تُفحص ملفات مصدر مدعومة'] : []),
   ]
+  const deepAnalysis = buildDeepAnalysis(deepSourceFiles, findings)
 
   return {
     projectName: file.name.replace(/\.zip$/i, ''),
@@ -217,5 +222,6 @@ export async function analyzeZip(file: File): Promise<ScanReport> {
     confidence,
     limitations,
     scoreAvailable,
+    deepAnalysis,
   }
 }
