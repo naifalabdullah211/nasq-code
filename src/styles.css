@@ -84,6 +84,13 @@ a {
   opacity: 0;
   visibility: hidden;
 }
+.intro-splash:not(.is-ready) .intro-splash__lead,
+.intro-splash:not(.is-ready) .intro-splash__visual,
+.intro-splash:not(.is-ready) .intro-splash__message,
+.intro-splash:not(.is-ready) .intro-splash__skip,
+.intro-splash:not(.is-ready) .intro-splash__progress {
+  visibility: hidden;
+}
 .intro-splash__lead {
   position: absolute;
   top: clamp(26px, 5vh, 54px);
