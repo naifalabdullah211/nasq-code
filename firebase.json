@@ -21,7 +21,7 @@
           { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },
           {
             "key": "Content-Security-Policy",
-            "value": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self' 'sha256-iTPiZtLu3dvmkd7SHa+/zdyWNOi4PQapq8thR9AsbAI='; style-src 'self' 'unsafe-inline'; worker-src 'self'"
+            "value": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data: https://github.com https://*.githubusercontent.com; manifest-src 'self'; object-src 'none'; script-src 'self' 'sha256-iTPiZtLu3dvmkd7SHa+/zdyWNOi4PQapq8thR9AsbAI='; style-src 'self' 'unsafe-inline'; worker-src 'self'"
           }
         ]
       },
