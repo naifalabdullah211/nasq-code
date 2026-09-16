@@ -45,3 +45,12 @@ export function trackPageView() {
     page_path: `${window.location.pathname}${window.location.hash}`,
   })
 }
+
+type AnalyticsValue = string | number | boolean
+
+export function trackEvent(
+  name: string,
+  parameters: Record<string, AnalyticsValue> = {},
+) {
+  window.gtag?.('event', name, parameters)
+}
