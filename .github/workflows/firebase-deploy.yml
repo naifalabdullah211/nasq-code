@@ -1,10 +1,16 @@
 name: Deploy Nasq Code to Firebase
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: firebase-production
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -30,9 +36,11 @@ jobs:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NASQ_CODE }}
 
       - name: Deploy Firebase Hosting
-        run: npx --yes firebase-tools@15.30.0 deploy --only hosting --project nasq-code --non-interactive
+        id: firebase_deploy
+        run: npx --yes firebase-tools@15.30.1 deploy --only hosting --project nasq-code --non-interactive
 
       - name: Revoke temporary Firebase key
+        if: always() && steps.firebase_deploy.outcome == 'success'
         shell: bash
         run: |
           key_id="$(jq -r .private_key_id "$GOOGLE_GHA_CREDS_PATH")"
