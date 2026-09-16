@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   Archive,
   ArrowLeft,
+  BookOpen,
   Boxes,
   Braces,
   Check,
@@ -19,6 +20,35 @@ import { ActionButton } from "../components/ActionButton";
 import { BrandMark } from "../components/BrandMark";
 import { ConnectDialog } from "../components/ConnectDialog";
 import type { ScanReport } from "../lib/analyzer";
+import { trackEvent } from "../lib/analytics";
+
+const knowledgeGuides = [
+  {
+    href: "learn/code-security-scan/",
+    title: "فحص أمان الكود قبل النشر",
+    detail: "نقاط عملية لاكتشاف الأسرار والإعدادات المفتوحة والأنماط الحساسة",
+  },
+  {
+    href: "learn/spaghetti-code-analysis/",
+    title: "اكتشاف الكود المتشابك",
+    detail: "كيف تميّز التشابك البنيوي وتحدد أول أجزاء المشروع التي تحتاج إلى فصل",
+  },
+  {
+    href: "learn/github-repository-analysis/",
+    title: "تحليل مستودع GitHub",
+    detail: "قراءة بنية المستودع العام وتبعياته دون تعديل ملفاته",
+  },
+  {
+    href: "learn/react-firebase-security/",
+    title: "مراجعة مشاريع React وFirebase",
+    detail: "فحص الواجهة والقواعد والإعدادات قبل الانتقال إلى بيئة الإنتاج",
+  },
+  {
+    href: "learn/npm-dependency-audit/",
+    title: "مراجعة تبعيات npm",
+    detail: "تثبيت الإصدارات وملفات القفل وتقليل مخاطر سلسلة التوريد",
+  },
+];
 
 export function LandingPage({
   onOpenDemo,
@@ -32,6 +62,11 @@ export function LandingPage({
   const [policy, setPolicy] = useState<"privacy" | "security" | "terms" | null>(
     null,
   );
+  const openScanner = (source: "github" | "zip", placement: string) => {
+    trackEvent("scan_dialog_opened", { source, placement });
+    setDialogSource(source);
+    setDialogOpen(true);
+  };
   return (
     <div className="landing">
       <header className="site-header">
@@ -57,7 +92,7 @@ export function LandingPage({
             </p>
             <div className="hero-actions">
               <ActionButton
-                onClick={() => { setDialogSource("github"); setDialogOpen(true); }}
+                onClick={() => openScanner("github", "hero")}
                 icon={<ArrowLeft />}
               >
                 ابدأ فحصًا آمنًا
@@ -125,7 +160,7 @@ export function LandingPage({
           className="integrations"
           aria-label="مصادر المشاريع"
         >
-          <button onClick={() => { setDialogSource("github"); setDialogOpen(true); }}>
+          <button onClick={() => openScanner("github", "integrations")}>
             <Github />
             <strong>GitHub</strong>
             <span>افحص مستودعًا عامًا</span>
@@ -140,7 +175,7 @@ export function LandingPage({
             <strong>Bitbucket</strong>
             <span>قريبًا</span>
           </button>
-          <button onClick={() => { setDialogSource("zip"); setDialogOpen(true); }}>
+          <button onClick={() => openScanner("zip", "integrations")}>
             <Upload />
             <strong>ملف ZIP</strong>
             <span>ارفعه وافحصه</span>
@@ -216,13 +251,37 @@ export function LandingPage({
           </div>
         </section>
 
-        <section id="knowledge" className="final-cta">
+        <section id="knowledge" className="knowledge-section" aria-labelledby="knowledge-title">
+          <div className="knowledge-intro">
+            <span><BookOpen /> مكتبة نَسَق</span>
+            <h2 id="knowledge-title">أدلة عملية لكود أوضح ومخاطر أقل</h2>
+            <p>محتوى مختصر يساعدك على فهم نتيجة الفحص وتحويلها إلى خطوات قابلة للتنفيذ</p>
+          </div>
+          <div className="knowledge-list">
+            {knowledgeGuides.map((guide, index) => (
+              <a
+                href={`${import.meta.env.BASE_URL}${guide.href}`}
+                key={guide.href}
+                onClick={() => trackEvent("knowledge_guide_opened", { guide: guide.href })}
+              >
+                <b>{(index + 1).toLocaleString("ar-SA")}</b>
+                <div>
+                  <h3>{guide.title}</h3>
+                  <p>{guide.detail}</p>
+                </div>
+                <ArrowLeft />
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section className="final-cta">
           <div>
             <h2>ابدأ من مشروعك الحالي</h2>
             <p>اكتشف المخاطر وحسّن جودة الكود بخطوات واضحة</p>
           </div>
           <div>
-            <ActionButton onClick={() => { setDialogSource("zip"); setDialogOpen(true); }} icon={<Upload />}>
+            <ActionButton onClick={() => openScanner("zip", "final_cta")} icon={<Upload />}>
               فحص ملف ZIP
             </ActionButton>
             <ActionButton
