@@ -3,7 +3,7 @@ import { IntroSplash } from './components/IntroSplash'
 import { DashboardPage } from './pages/DashboardPage'
 import { LandingPage } from './pages/LandingPage'
 import type { ScanReport } from './lib/analyzer'
-import { getAnalyticsConsent, saveAnalyticsConsent, startAnalytics, trackPageView, type AnalyticsConsent } from './lib/analytics'
+import { getAnalyticsConsent, saveAnalyticsConsent, startAnalytics, trackEvent, trackPageView, type AnalyticsConsent } from './lib/analytics'
 
 type View = 'landing' | 'dashboard'
 const REPORT_KEY = 'nasq-code-report-v3'
@@ -48,6 +48,7 @@ export default function App() {
     ? <DashboardPage onBack={() => go('landing')} report={report} isDemo={isDemo} />
     : <LandingPage
         onOpenDemo={() => {
+          trackEvent('demo_report_opened', { placement: 'landing' })
           sessionStorage.removeItem(REPORT_KEY)
           sessionStorage.setItem(DEMO_KEY, 'true')
           setReport(null)
