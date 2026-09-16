@@ -1,4 +1,4 @@
-const CACHE = "nasq-code-v3";
+const CACHE = "nasq-code-v4";
 const CORE = ["./", "./manifest.webmanifest", "./brand-icon.svg"];
 
 self.addEventListener("install", (event) => {
