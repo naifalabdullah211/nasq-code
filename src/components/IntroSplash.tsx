@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const INTRO_IMAGE = `${import.meta.env.BASE_URL}nasq-inside-comparison.webp`
+const INTRO_IMAGE = `${import.meta.env.BASE_URL}rcmc-building.jpeg`
 
 type IntroSplashProps = {
   onComplete: () => void
@@ -40,7 +40,7 @@ export function IntroSplash({ onComplete }: IntroSplashProps) {
       <div className="intro-splash__visual">
         <img
           src={INTRO_IMAGE}
-          alt="مبنيان متشابهان من الخارج وبنية فوضوية وأخرى منظمة في الداخل"
+          alt="مبنى المركز الطبي"
         />
         <h1>
           الفرق

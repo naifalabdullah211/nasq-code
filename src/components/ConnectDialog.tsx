@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Github, GitBranch, LoaderCircle, Upload, X } from "lucide-react";
 import { ActionButton } from "./ActionButton";
 import { analyzeZip, type ScanReport } from "../lib/analyzer";
+import { trackEvent } from "../lib/analytics";
 import { downloadPublicGitHubRepository } from "../lib/github";
 
 export function ConnectDialog({
@@ -57,15 +58,27 @@ export function ConnectDialog({
   }, [initialSource, open, onClose]);
   if (!open) return null;
 
+  const completeScan = (result: ScanReport, scanSource: "github" | "zip") => {
+    trackEvent("scan_completed", {
+      source: scanSource,
+      scanned_files: result.scannedFilesCount,
+      findings_count: result.findings.length,
+      deep_analysis_available: Boolean(result.deepAnalysis),
+    });
+    onScan(result);
+  };
+
   const submit = async () => {
     setError("");
     if (source === "github") {
       if (!url.trim()) return setError("ألصق رابط المستودع أولًا");
       setLoading(true);
+      trackEvent("scan_started", { source: "github" });
       try {
         const repositoryFile = await downloadPublicGitHubRepository(url);
-        onScan(await analyzeZip(repositoryFile));
+        completeScan(await analyzeZip(repositoryFile), "github");
       } catch (caught) {
+        trackEvent("scan_failed", { source: "github" });
         setError(caught instanceof Error ? caught.message : "تعذر فحص المستودع");
       } finally {
         setLoading(false);
@@ -75,9 +88,11 @@ export function ConnectDialog({
     if (source !== "zip") return setError("هذا المصدر سيتاح لاحقًا");
     if (!zipFile) return setError("اختر ملف ZIP أولًا");
     setLoading(true);
+    trackEvent("scan_started", { source: "zip" });
     try {
-      onScan(await analyzeZip(zipFile));
+      completeScan(await analyzeZip(zipFile), "zip");
     } catch (caught) {
+      trackEvent("scan_failed", { source: "zip" });
       setError(caught instanceof Error ? caught.message : "تعذر فحص الملف");
     } finally {
       setLoading(false);
