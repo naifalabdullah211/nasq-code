@@ -1,22 +1,19 @@
 import { useEffect, useState } from 'react'
 
-const INTRO_IMAGE = `${import.meta.env.BASE_URL}rcmc-building.jpeg`
+const INTRO_IMAGE = `${import.meta.env.BASE_URL}nasq-inside-comparison.webp`
 
 type IntroSplashProps = {
   onComplete: () => void
 }
 
 export function IntroSplash({ onComplete }: IntroSplashProps) {
-  const [showImage, setShowImage] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
 
   useEffect(() => {
-    const imageTimer = window.setTimeout(() => setShowImage(true), 3000)
     const leaveTimer = window.setTimeout(() => setIsLeaving(true), 7000)
     const closeTimer = window.setTimeout(onComplete, 7550)
 
     return () => {
-      window.clearTimeout(imageTimer)
       window.clearTimeout(leaveTimer)
       window.clearTimeout(closeTimer)
     }
@@ -29,7 +26,7 @@ export function IntroSplash({ onComplete }: IntroSplashProps) {
 
   return (
     <section
-      className={`intro-splash${showImage ? ' show-image' : ''}${isLeaving ? ' is-leaving' : ''}`}
+      className={`intro-splash show-image${isLeaving ? ' is-leaving' : ''}`}
       aria-label="مقدمة نَسَق كود"
     >
       <div className="intro-splash__lead">
@@ -40,7 +37,9 @@ export function IntroSplash({ onComplete }: IntroSplashProps) {
       <div className="intro-splash__visual">
         <img
           src={INTRO_IMAGE}
-          alt="مبنى المركز الطبي"
+          alt="مبنيان متشابهان من الخارج وبنية فوضوية وأخرى منظمة في الداخل"
+          fetchPriority="high"
+          decoding="sync"
         />
         <h1>
           الفرق
